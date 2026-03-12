@@ -1,0 +1,11 @@
+# PulseBoard — Cline Rules
+
+## File Size Limits
+
+| Threshold | Lines | Action |
+|-----------|-------|--------|
+| **Target** | 150–300 | Ideal file size for readability and maintainability |
+| **Review** | 300–400 | Consider splitting *if* there is a natural, meaningful boundary (e.g., a reusable view or focused service method). Do **not** split artificially just to satisfy the counter. |
+| **Should split** | 400–500 | Split along logical seams. Look for reusable views, separate service methods, or distinct concerns that belong in separate files. |
+| **Hard limit** | 500 | **Must** split before merging. No Swift file may ever exceed 500 lines. This limit exists because Cline's context window degrades and responses slow significantly when individual files grow beyond this point. |
+

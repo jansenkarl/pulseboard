@@ -1,0 +1,408 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 60;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		AA0000000000000000000201 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000101 /* AppModel.swift */; };
+		AA0000000000000000000216 /* AppModel+CheckProcessing.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000116 /* AppModel+CheckProcessing.swift */; };
+		AA0000000000000000000217 /* AppModel+MonitorEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000117 /* AppModel+MonitorEditor.swift */; };
+		AA0000000000000000000218 /* AppModel+Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000118 /* AppModel+Persistence.swift */; };
+		AA0000000000000000000219 /* AppModel+Queries.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000119 /* AppModel+Queries.swift */; };
+		AA000000000000000000021A /* AppModel+Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000011A /* AppModel+Settings.swift */; };
+		AA0000000000000000000202 /* PulseBoardApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000102 /* PulseBoardApp.swift */; };
+		AA0000000000000000000203 /* MonitorModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000103 /* MonitorModels.swift */; };
+		AA0000000000000000000204 /* SettingsModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000104 /* SettingsModels.swift */; };
+		AA0000000000000000000205 /* AppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000105 /* AppStore.swift */; };
+		AA0000000000000000000206 /* KeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000106 /* KeychainStore.swift */; };
+		AA0000000000000000000207 /* AlertingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000107 /* AlertingService.swift */; };
+		AA0000000000000000000208 /* MonitorCheckService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000108 /* MonitorCheckService.swift */; };
+		AA0000000000000000000209 /* MonitoringEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000109 /* MonitoringEngine.swift */; };
+		AA000000000000000000020A /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000010A /* NotificationService.swift */; };
+		AA000000000000000000020B /* SMSClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000010B /* SMSClient.swift */; };
+		AA000000000000000000020C /* SMTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000010C /* SMTPClient.swift */; };
+		AA000000000000000000020D /* ConfigurationDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000010D /* ConfigurationDocument.swift */; };
+		AA000000000000000000020E /* Formatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000010E /* Formatting.swift */; };
+		AA000000000000000000020F /* SurfaceComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000010F /* SurfaceComponents.swift */; };
+		AA0000000000000000000210 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000110 /* DashboardView.swift */; };
+		AA0000000000000000000211 /* IncidentsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000111 /* IncidentsView.swift */; };
+		AA0000000000000000000212 /* MenuBarExtraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000112 /* MenuBarExtraView.swift */; };
+		AA0000000000000000000213 /* MonitorViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000113 /* MonitorViews.swift */; };
+		AA0000000000000000000214 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000114 /* RootView.swift */; };
+		AA0000000000000000000215 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000115 /* SettingsView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		AA000000000000000000000F /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
+		AA0000000000000000000010 /* PulseBoard.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PulseBoard.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA0000000000000000000011 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = PulseBoard/Info.plist; sourceTree = SOURCE_ROOT; };
+		AA0000000000000000000101 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
+		AA0000000000000000000116 /* AppModel+CheckProcessing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppModel+CheckProcessing.swift"; sourceTree = "<group>"; };
+		AA0000000000000000000117 /* AppModel+MonitorEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppModel+MonitorEditor.swift"; sourceTree = "<group>"; };
+		AA0000000000000000000118 /* AppModel+Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppModel+Persistence.swift"; sourceTree = "<group>"; };
+		AA0000000000000000000119 /* AppModel+Queries.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppModel+Queries.swift"; sourceTree = "<group>"; };
+		AA000000000000000000011A /* AppModel+Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppModel+Settings.swift"; sourceTree = "<group>"; };
+		AA0000000000000000000102 /* PulseBoardApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PulseBoardApp.swift; sourceTree = "<group>"; };
+		AA0000000000000000000103 /* MonitorModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonitorModels.swift; sourceTree = "<group>"; };
+		AA0000000000000000000104 /* SettingsModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsModels.swift; sourceTree = "<group>"; };
+		AA0000000000000000000105 /* AppStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStore.swift; sourceTree = "<group>"; };
+		AA0000000000000000000106 /* KeychainStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainStore.swift; sourceTree = "<group>"; };
+		AA0000000000000000000107 /* AlertingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertingService.swift; sourceTree = "<group>"; };
+		AA0000000000000000000108 /* MonitorCheckService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonitorCheckService.swift; sourceTree = "<group>"; };
+		AA0000000000000000000109 /* MonitoringEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonitoringEngine.swift; sourceTree = "<group>"; };
+		AA000000000000000000010A /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		AA000000000000000000010B /* SMSClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMSClient.swift; sourceTree = "<group>"; };
+		AA000000000000000000010C /* SMTPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMTPClient.swift; sourceTree = "<group>"; };
+		AA000000000000000000010D /* ConfigurationDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationDocument.swift; sourceTree = "<group>"; };
+		AA000000000000000000010E /* Formatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatting.swift; sourceTree = "<group>"; };
+		AA000000000000000000010F /* SurfaceComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurfaceComponents.swift; sourceTree = "<group>"; };
+		AA0000000000000000000110 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		AA0000000000000000000111 /* IncidentsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncidentsView.swift; sourceTree = "<group>"; };
+		AA0000000000000000000112 /* MenuBarExtraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarExtraView.swift; sourceTree = "<group>"; };
+		AA0000000000000000000113 /* MonitorViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonitorViews.swift; sourceTree = "<group>"; };
+		AA0000000000000000000114 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		AA0000000000000000000115 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		AA0000000000000000000014 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		AA0000000000000000000002 = {
+			isa = PBXGroup;
+			children = (
+				AA000000000000000000000F /* README.md */,
+				AA0000000000000000000004 /* Sources */,
+				AA000000000000000000000D /* Support */,
+				AA0000000000000000000003 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000010 /* PulseBoard.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000004 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000005 /* PulseBoard */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000005 /* PulseBoard */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000006 /* App */,
+				AA0000000000000000000007 /* Models */,
+				AA0000000000000000000008 /* Persistence */,
+				AA0000000000000000000009 /* Services */,
+				AA000000000000000000000A /* Utilities */,
+				AA000000000000000000000B /* Views */,
+			);
+			path = PulseBoard;
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000006 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000101 /* AppModel.swift */,
+				AA0000000000000000000116 /* AppModel+CheckProcessing.swift */,
+				AA0000000000000000000117 /* AppModel+MonitorEditor.swift */,
+				AA0000000000000000000118 /* AppModel+Persistence.swift */,
+				AA0000000000000000000119 /* AppModel+Queries.swift */,
+				AA000000000000000000011A /* AppModel+Settings.swift */,
+				AA0000000000000000000102 /* PulseBoardApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000007 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000103 /* MonitorModels.swift */,
+				AA0000000000000000000104 /* SettingsModels.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000008 /* Persistence */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000105 /* AppStore.swift */,
+				AA0000000000000000000106 /* KeychainStore.swift */,
+			);
+			path = Persistence;
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000009 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000107 /* AlertingService.swift */,
+				AA0000000000000000000108 /* MonitorCheckService.swift */,
+				AA0000000000000000000109 /* MonitoringEngine.swift */,
+				AA000000000000000000010A /* NotificationService.swift */,
+				AA000000000000000000010B /* SMSClient.swift */,
+				AA000000000000000000010C /* SMTPClient.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		AA000000000000000000000A /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				AA000000000000000000010D /* ConfigurationDocument.swift */,
+				AA000000000000000000010E /* Formatting.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		AA000000000000000000000B /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				AA000000000000000000000C /* Components */,
+				AA0000000000000000000110 /* DashboardView.swift */,
+				AA0000000000000000000111 /* IncidentsView.swift */,
+				AA0000000000000000000112 /* MenuBarExtraView.swift */,
+				AA0000000000000000000113 /* MonitorViews.swift */,
+				AA0000000000000000000114 /* RootView.swift */,
+				AA0000000000000000000115 /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		AA000000000000000000000C /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				AA000000000000000000010F /* SurfaceComponents.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		AA000000000000000000000D /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000011 /* Info.plist */,
+			);
+			name = Support;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		AA0000000000000000000012 /* PulseBoard */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA0000000000000000000017 /* Build configuration list for PBXNativeTarget "PulseBoard" */;
+			buildPhases = (
+				AA0000000000000000000013 /* Sources */,
+				AA0000000000000000000014 /* Frameworks */,
+				AA0000000000000000000015 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PulseBoard;
+			productName = PulseBoard;
+			productReference = AA0000000000000000000010 /* PulseBoard.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		AA0000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 2630;
+				TargetAttributes = {
+					AA0000000000000000000012 = {
+						CreatedOnToolsVersion = 26.3;
+					};
+				};
+			};
+			buildConfigurationList = AA0000000000000000000016 /* Build configuration list for PBXProject "PulseBoard" */;
+			compatibilityVersion = "Xcode 15.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = AA0000000000000000000002;
+			productRefGroup = AA0000000000000000000003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				AA0000000000000000000012 /* PulseBoard */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		AA0000000000000000000015 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AA0000000000000000000013 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA0000000000000000000201 /* AppModel.swift in Sources */,
+				AA0000000000000000000216 /* AppModel+CheckProcessing.swift in Sources */,
+				AA0000000000000000000217 /* AppModel+MonitorEditor.swift in Sources */,
+				AA0000000000000000000218 /* AppModel+Persistence.swift in Sources */,
+				AA0000000000000000000219 /* AppModel+Queries.swift in Sources */,
+				AA000000000000000000021A /* AppModel+Settings.swift in Sources */,
+				AA0000000000000000000202 /* PulseBoardApp.swift in Sources */,
+				AA0000000000000000000203 /* MonitorModels.swift in Sources */,
+				AA0000000000000000000204 /* SettingsModels.swift in Sources */,
+				AA0000000000000000000205 /* AppStore.swift in Sources */,
+				AA0000000000000000000206 /* KeychainStore.swift in Sources */,
+				AA0000000000000000000207 /* AlertingService.swift in Sources */,
+				AA0000000000000000000208 /* MonitorCheckService.swift in Sources */,
+				AA0000000000000000000209 /* MonitoringEngine.swift in Sources */,
+				AA000000000000000000020A /* NotificationService.swift in Sources */,
+				AA000000000000000000020B /* SMSClient.swift in Sources */,
+				AA000000000000000000020C /* SMTPClient.swift in Sources */,
+				AA000000000000000000020D /* ConfigurationDocument.swift in Sources */,
+				AA000000000000000000020E /* Formatting.swift in Sources */,
+				AA000000000000000000020F /* SurfaceComponents.swift in Sources */,
+				AA0000000000000000000210 /* DashboardView.swift in Sources */,
+				AA0000000000000000000211 /* IncidentsView.swift in Sources */,
+				AA0000000000000000000212 /* MenuBarExtraView.swift in Sources */,
+				AA0000000000000000000213 /* MonitorViews.swift in Sources */,
+				AA0000000000000000000214 /* RootView.swift in Sources */,
+				AA0000000000000000000215 /* SettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		AA0000000000000000000018 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		AA0000000000000000000019 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		AA000000000000000000001A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_LANGUAGE = en;
+				ENABLE_APP_SANDBOX = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = PulseBoard/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.metaprof.PulseBoard;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		AA000000000000000000001B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_LANGUAGE = en;
+				ENABLE_APP_SANDBOX = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = PulseBoard/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.metaprof.PulseBoard;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		AA0000000000000000000016 /* Build configuration list for PBXProject "PulseBoard" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA0000000000000000000018 /* Debug */,
+				AA0000000000000000000019 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA0000000000000000000017 /* Build configuration list for PBXNativeTarget "PulseBoard" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA000000000000000000001A /* Debug */,
+				AA000000000000000000001B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = AA0000000000000000000001 /* Project object */;
+}
