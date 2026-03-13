@@ -18,8 +18,8 @@ actor AlertingService {
         await localNotifications.authorizationStatus()
     }
 
-    func requestNotificationPermission() async -> Bool {
-        await localNotifications.requestAuthorization()
+    func requestNotificationPermission() async throws -> UNAuthorizationStatus {
+        try await localNotifications.requestAuthorization()
     }
 
     func sendAlert(for monitor: Monitor, incident: Incident, settings: AppSettings) async -> Bool {

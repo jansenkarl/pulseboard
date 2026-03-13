@@ -101,7 +101,25 @@ extension AppModel {
                 let didApplySettings = await applySettings(draft)
                 guard didApplySettings else { return }
             }
+
+            if channel == .localNotification {
+                var status = await alerting.notificationStatus()
+                if status == .notDetermined {
+                    status = try await alerting.requestNotificationPermission()
+                }
+
+                notificationAuthorizationStatus = status
+                guard isNotificationAuthorized(status) else {
+                    transientMessage = notificationPermissionGuidance(for: status)
+                    return
+                }
+            }
+
             try await alerting.sendTestAlert(channel: channel, settings: settings)
+
+            if channel == .localNotification {
+                await refreshNotificationStatus()
+            }
             transientMessage = "Test alert sent."
         } catch {
             transientMessage = error.localizedDescription

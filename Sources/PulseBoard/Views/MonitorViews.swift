@@ -68,6 +68,7 @@ struct MonitorWorkspaceView: View {
 
             if let selectedMonitor = model.monitor(for: model.selectedMonitorID) {
                 MonitorDetailView(monitor: selectedMonitor)
+                    .frame(minWidth: 500)
             } else {
                 GlassCard {
                     EmptyStateView(
@@ -76,6 +77,7 @@ struct MonitorWorkspaceView: View {
                         systemImage: "display.2"
                     )
                 }
+                .frame(minWidth: 500)
             }
         }
     }
@@ -83,6 +85,7 @@ struct MonitorWorkspaceView: View {
 
 struct MonitorDetailView: View {
     @EnvironmentObject private var model: AppModel
+    @State private var detailContentWidth: CGFloat = 0
     let monitor: Monitor
 
     private var history: [MonitorCheck] {
@@ -93,32 +96,38 @@ struct MonitorDetailView: View {
         history.recent(limit: 24).compactMap(\.responseTimeMs).reversed()
     }
 
+    private var metricGridColumns: [GridItem] {
+        let spacing: CGFloat = 14
+        let minimumCardWidthForTwoColumns: CGFloat = 250
+        let thresholdForTwoColumns = (minimumCardWidthForTwoColumns * 2) + spacing
+
+        if detailContentWidth >= thresholdForTwoColumns {
+            return [
+                GridItem(.flexible(), spacing: spacing),
+                GridItem(.flexible(), spacing: spacing)
+            ]
+        }
+
+        return [GridItem(.flexible())]
+    }
+
     var body: some View {
         GlassCard {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    HStack(alignment: .top) {
-                        VStack(alignment: .leading, spacing: 10) {
-                            HStack {
-                                Image(systemName: monitor.kind.symbolName)
-                                    .font(.title2)
-                                    .foregroundStyle(.secondary)
-                                Text(monitor.name)
-                                    .font(.system(size: 28, weight: .bold, design: .rounded))
-                            }
-                            Text(monitor.displayTarget)
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack(spacing: 10) {
+                            Image(systemName: monitor.kind.symbolName)
+                                .font(.title2)
                                 .foregroundStyle(.secondary)
-                            HStack(spacing: 8) {
-                                StatusBadge(status: monitor.state.currentStatus)
-                                if !monitor.isEnabled {
-                                    TagChip(title: "Paused", isSelected: true)
-                                }
-                                ForEach(monitor.normalizedTags, id: \.self) { tag in
-                                    TagChip(title: tag)
-                                }
-                            }
+                            Text(monitor.name)
+                                .font(.system(size: 28, weight: .bold, design: .rounded))
+                                .lineLimit(1)
+                                .truncationMode(.tail)
+                            Spacer(minLength: 0)
                         }
-                        Spacer()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
                         HStack(spacing: 10) {
                             Button("Run Now") {
                                 Task {
@@ -126,6 +135,7 @@ struct MonitorDetailView: View {
                                 }
                             }
                             .buttonStyle(.borderedProminent)
+                            .fixedSize(horizontal: true, vertical: false)
 
                             Button(monitor.isEnabled ? "Pause" : "Resume") {
                                 Task {
@@ -133,11 +143,13 @@ struct MonitorDetailView: View {
                                 }
                             }
                             .buttonStyle(.bordered)
+                            .fixedSize(horizontal: true, vertical: false)
 
                             Button("Edit") {
                                 model.openEditor(for: monitor)
                             }
                             .buttonStyle(.bordered)
+                            .fixedSize(horizontal: true, vertical: false)
 
                             Button("Delete", role: .destructive) {
                                 Task {
@@ -146,10 +158,29 @@ struct MonitorDetailView: View {
                                 }
                             }
                             .buttonStyle(.bordered)
+                            .fixedSize(horizontal: true, vertical: false)
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                        Text(monitor.displayTarget)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                        HStack(spacing: 8) {
+                            StatusBadge(status: monitor.state.currentStatus)
+                            if !monitor.isEnabled {
+                                TagChip(title: "Paused", isSelected: true)
+                            }
+                            ForEach(monitor.normalizedTags, id: \.self) { tag in
+                                TagChip(title: tag)
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
 
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 180), spacing: 14)], spacing: 14) {
+                    LazyVGrid(columns: metricGridColumns, spacing: 14) {
                         MetricCard(
                             title: "Latency",
                             value: PulseFormatters.milliseconds(monitor.state.lastResponseTimeMs),
@@ -241,8 +272,25 @@ struct MonitorDetailView: View {
                         }
                     }
                 }
+                .background(
+                    GeometryReader { proxy in
+                        Color.clear
+                            .preference(key: MonitorDetailWidthPreferenceKey.self, value: proxy.size.width)
+                    }
+                )
+                .onPreferenceChange(MonitorDetailWidthPreferenceKey.self) { width in
+                    detailContentWidth = width
+                }
             }
         }
+    }
+}
+
+private struct MonitorDetailWidthPreferenceKey: PreferenceKey {
+    static let defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
     }
 }
 

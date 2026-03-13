@@ -87,14 +87,16 @@ struct RootView: View {
             } label: {
                 Label("Add Monitor", systemImage: "plus")
             }
+            .help("Add a new monitor")
 
             Button {
                 Task {
                     await model.runAllNow()
                 }
             } label: {
-                Label("Run All", systemImage: "arrow.clockwise")
+                Label("Refresh", systemImage: "arrow.clockwise")
             }
+            .help("Refresh all monitors now")
 
             Button {
                 Task {
@@ -103,11 +105,16 @@ struct RootView: View {
             } label: {
                 Label(model.settings.pauseAllMonitoring ? "Resume" : "Pause", systemImage: model.settings.pauseAllMonitoring ? "play.fill" : "pause.fill")
             }
+            .help(model.settings.pauseAllMonitoring ? "Resume monitoring checks" : "Pause monitoring checks")
+
+            Button {
+                isImporting = true
+            } label: {
+                Label("Import", systemImage: "square.and.arrow.down")
+            }
+            .help("Import monitors from a JSON file")
 
             Menu {
-                Button("Import Monitors") {
-                    isImporting = true
-                }
                 Button("Export Configuration") {
                     Task {
                         exportDocument = await model.exportDocument()
@@ -115,8 +122,9 @@ struct RootView: View {
                     }
                 }
             } label: {
-                Label("Data", systemImage: "square.and.arrow.up.on.square")
+                Label("Export", systemImage: "square.and.arrow.up")
             }
+            .help("Export your current configuration")
         }
     }
 

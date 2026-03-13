@@ -1,5 +1,16 @@
 import Foundation
 
+struct ConfigurationTransferPayload: Codable, Sendable {
+    var schemaVersion: Int = 1
+    var monitors: [Monitor]
+    var settings: AppSettings
+}
+
+struct ImportedConfiguration: Sendable {
+    var monitors: [Monitor]
+    var settings: AppSettings?
+}
+
 actor AppStore {
     private let encoder: JSONEncoder
     private let decoder: JSONDecoder
@@ -76,24 +87,58 @@ actor AppStore {
     }
 
     func exportData(for state: AppDocumentState) throws -> Data {
-        try encoder.encode(prune(state))
+        try encoder.encode(configurationPayload(for: state))
     }
 
-    func importMonitors(from data: Data) throws -> [Monitor] {
+    func importConfiguration(from data: Data) throws -> ImportedConfiguration {
+        if let payload = try? decoder.decode(ConfigurationTransferPayload.self, from: data) {
+            return ImportedConfiguration(monitors: payload.monitors, settings: payload.settings)
+        }
+
+        // Backward compatibility: previous exports used full document state.
         if let payload = try? decoder.decode(AppDocumentState.self, from: data) {
-            return payload.monitors
+            return ImportedConfiguration(monitors: payload.monitors, settings: payload.settings)
         }
+
+        // Backward compatibility: plain monitor arrays are still supported.
         if let monitors = try? decoder.decode([Monitor].self, from: data) {
-            return monitors
+            return ImportedConfiguration(monitors: monitors, settings: nil)
         }
+
         struct WrappedMonitors: Decodable {
             let monitors: [Monitor]
         }
-        return try decoder.decode(WrappedMonitors.self, from: data).monitors
+        let wrapped = try decoder.decode(WrappedMonitors.self, from: data)
+        return ImportedConfiguration(monitors: wrapped.monitors, settings: nil)
+    }
+
+    func importMonitors(from data: Data) throws -> [Monitor] {
+        try importConfiguration(from: data).monitors
     }
 
     private func prune(_ state: AppDocumentState) -> AppDocumentState {
         Self.pruneStatic(state)
+    }
+
+    private func configurationPayload(for state: AppDocumentState) -> ConfigurationTransferPayload {
+        ConfigurationTransferPayload(
+            monitors: state.monitors.map(Self.sanitizedMonitorForConfiguration),
+            settings: Self.sanitizedSettingsForConfiguration(state.settings)
+        )
+    }
+
+    private static func sanitizedSettingsForConfiguration(_ settings: AppSettings) -> AppSettings {
+        var sanitized = settings
+        sanitized.smtp.passwordReference = nil
+        sanitized.sms.authTokenReference = nil
+        return sanitized
+    }
+
+    private static func sanitizedMonitorForConfiguration(_ monitor: Monitor) -> Monitor {
+        var sanitized = monitor
+        sanitized.state = .init()
+        sanitized.bearerTokenReference = nil
+        return sanitized
     }
 
     /// Static (nonisolated-safe) version of prune used by saveForTermination.

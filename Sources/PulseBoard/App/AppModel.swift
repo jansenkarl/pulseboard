@@ -110,12 +110,59 @@ final class AppModel: ObservableObject {
     }
 
     func requestNotificationPermission() async {
-        _ = await alerting.requestNotificationPermission()
-        await refreshNotificationStatus()
+        do {
+            let currentStatus = await alerting.notificationStatus()
+            switch currentStatus {
+            case .notDetermined:
+                let updatedStatus = try await alerting.requestNotificationPermission()
+                notificationAuthorizationStatus = updatedStatus
+                transientMessage = isNotificationAuthorized(updatedStatus)
+                    ? "Notification permission granted."
+                    : notificationPermissionGuidance(for: updatedStatus)
+            case .denied:
+                notificationAuthorizationStatus = currentStatus
+                transientMessage = notificationPermissionGuidance(for: currentStatus)
+            case .authorized, .provisional, .ephemeral:
+                notificationAuthorizationStatus = currentStatus
+                transientMessage = "Notification permission is already authorized."
+            @unknown default:
+                notificationAuthorizationStatus = currentStatus
+                transientMessage = "Notification permission is in an unknown state."
+            }
+        } catch {
+            await refreshNotificationStatus()
+            transientMessage = error.localizedDescription
+        }
     }
 
     func refreshNotificationStatus() async {
         notificationAuthorizationStatus = await alerting.notificationStatus()
+    }
+
+    var canSendLocalNotificationTest: Bool {
+        notificationAuthorizationStatus != .denied
+    }
+
+    func openSystemNotificationSettings() {
+        guard let url = URL(string: "x-apple.systempreferences:com.apple.preference.notifications") else { return }
+        NSWorkspace.shared.open(url)
+    }
+
+    func isNotificationAuthorized(_ status: UNAuthorizationStatus) -> Bool {
+        status == .authorized || status == .provisional
+    }
+
+    func notificationPermissionGuidance(for status: UNAuthorizationStatus) -> String {
+        switch status {
+        case .denied:
+            return "Notifications are denied for PulseBoard. Enable them in System Settings → Notifications."
+        case .notDetermined:
+            return "Notification permission has not been granted yet. Click Request Permission to allow alerts."
+        case .authorized, .provisional, .ephemeral:
+            return "Notifications are authorized."
+        @unknown default:
+            return "Notification permission is in an unknown state."
+        }
     }
 
     // MARK: Persistence flush (public surface)

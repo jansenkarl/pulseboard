@@ -47,7 +47,7 @@ struct DashboardView: View {
                     )
                 }
 
-                HStack(alignment: .top, spacing: 18) {
+                VStack(alignment: .leading, spacing: 18) {
                     GlassCard {
                         VStack(alignment: .leading, spacing: 16) {
                             HStack {
@@ -92,7 +92,7 @@ struct DashboardView: View {
                             .foregroundStyle(.secondary)
                         }
                     }
-                    .frame(width: 360)
+                    .frame(maxWidth: .infinity)
                 }
 
                 GlassCard {

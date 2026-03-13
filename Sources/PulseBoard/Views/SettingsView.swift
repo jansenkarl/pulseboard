@@ -1,13 +1,15 @@
 import SwiftUI
-import UniformTypeIdentifiers
 
 struct SettingsView: View {
     @EnvironmentObject private var model: AppModel
     @State private var draft = SettingsDraft()
-    @State private var exportDocument = ConfigurationDocument()
-    @State private var isExporting = false
-    @State private var isImporting = false
-    @State private var showSavedConfirmation = false
+    @State private var rowOneHeight: CGFloat = 0
+    @State private var rowTwoHeight: CGFloat = 0
+    @State private var rowThreeHeight: CGFloat = 0
+
+    private let maxContentWidth: CGFloat = 980
+    private let labelColumnWidth: CGFloat = 170
+    private let controlMaxWidth: CGFloat = 340
 
     var body: some View {
         ZStack {
@@ -16,125 +18,32 @@ struct SettingsView: View {
                 VStack(alignment: .leading, spacing: 22) {
                     header
 
-                    GlassCard {
-                        VStack(alignment: .leading, spacing: 20) {
-                            settingsSection("General") {
-                                Toggle("Pause all monitoring", isOn: $draft.settings.pauseAllMonitoring)
-                                Toggle("Launch at login", isOn: $draft.settings.launchAtLogin)
-                            }
-
-                            Divider()
-
-                            settingsSection("Notifications") {
-                                LabeledContent("Permission Status", value: PulseFormatters.notificationStatus(model.notificationAuthorizationStatus))
-                                Toggle("Enable local notifications", isOn: $draft.settings.localAlerts.isEnabled)
-                                Button("Request Notification Permission") {
-                                    Task {
-                                        await model.requestNotificationPermission()
-                                    }
-                                }
-                                routeEditor(
-                                    title: "Local notification routing",
-                                    mode: $draft.localAlertRouteMode,
-                                    selectedMonitorIDs: $draft.localRouteMonitorIDs,
-                                    tagsText: $draft.localRouteTagsText
-                                )
-                                Button("Send Test Notification") {
-                                    Task {
-                                        await model.sendTestAlert(.localNotification, using: draft)
-                                    }
-                                }
-                            }
-                        }
+                    // Row 1: General + Notifications
+                    HStack(alignment: .top, spacing: 18) {
+                        generalCard(minHeight: rowOneHeight)
+                            .frame(maxWidth: .infinity, alignment: .topLeading)
+                        notificationsCard(minHeight: rowOneHeight)
+                            .frame(maxWidth: .infinity, alignment: .topLeading)
                     }
+                    .onPreferenceChange(SettingsRowOneHeightPreferenceKey.self) { rowOneHeight = $0 }
 
-                    GlassCard {
-                        VStack(alignment: .leading, spacing: 20) {
-                            settingsSection("SMTP Email") {
-                                TextField("Host", text: $draft.settings.smtp.host)
-                                TextField("Port", value: $draft.settings.smtp.port, format: .number)
-                                TextField("Username", text: $draft.settings.smtp.username)
-                                SecureField("Password / App Password", text: $draft.smtpPassword)
-                                TextField("From Address", text: $draft.settings.smtp.fromAddress)
-                                TextField("To Addresses", text: $draft.smtpToAddressesText)
-                                Toggle("Use TLS/SSL", isOn: $draft.settings.smtp.useTLS)
-                                Toggle("Enable email alerts", isOn: $draft.settings.emailAlerts.isEnabled)
-                                routeEditor(
-                                    title: "Email routing",
-                                    mode: $draft.emailAlertRouteMode,
-                                    selectedMonitorIDs: $draft.emailRouteMonitorIDs,
-                                    tagsText: $draft.emailRouteTagsText
-                                )
-                                Button("Send Test Email") {
-                                    Task {
-                                        await model.sendTestAlert(.email, using: draft)
-                                    }
-                                }
-                            }
-                        }
+                    // Row 2: SMTP Email + SMS Alerts
+                    HStack(alignment: .top, spacing: 18) {
+                        smtpCard(minHeight: rowTwoHeight)
+                            .frame(maxWidth: .infinity, alignment: .topLeading)
+                        smsCard(minHeight: rowTwoHeight)
+                            .frame(maxWidth: .infinity, alignment: .topLeading)
                     }
+                    .onPreferenceChange(SettingsRowTwoHeightPreferenceKey.self) { rowTwoHeight = $0 }
 
-                    GlassCard {
-                        VStack(alignment: .leading, spacing: 20) {
-                            settingsSection("SMS Alerts") {
-                                Picker("Provider", selection: $draft.settings.sms.provider) {
-                                    ForEach(SMSProviderKind.allCases) { provider in
-                                        Text(provider.rawValue).tag(provider)
-                                    }
-                                }
-                                TextField("API Base URL", text: $draft.settings.sms.apiBaseURL)
-                                TextField("Account SID", text: $draft.settings.sms.accountSID)
-                                SecureField("Auth Token", text: $draft.smsAuthToken)
-                                TextField("Sender Number", text: $draft.settings.sms.senderNumber)
-                                TextField("Recipient Numbers", text: $draft.smsRecipientsText)
-                                Toggle("Enable SMS alerts", isOn: $draft.settings.smsAlerts.isEnabled)
-                                routeEditor(
-                                    title: "SMS routing",
-                                    mode: $draft.smsAlertRouteMode,
-                                    selectedMonitorIDs: $draft.smsRouteMonitorIDs,
-                                    tagsText: $draft.smsRouteTagsText
-                                )
-                                Button("Send Test SMS") {
-                                    Task {
-                                        await model.sendTestAlert(.sms, using: draft)
-                                    }
-                                }
-                            }
-                        }
+                    // Row 3: Monitoring Defaults + Data
+                    HStack(alignment: .top, spacing: 18) {
+                        monitoringDefaultsCard(minHeight: rowThreeHeight)
+                            .frame(maxWidth: .infinity, alignment: .topLeading)
+                        dataCard(minHeight: rowThreeHeight)
+                            .frame(maxWidth: .infinity, alignment: .topLeading)
                     }
-
-                    GlassCard {
-                        VStack(alignment: .leading, spacing: 20) {
-                            settingsSection("Monitoring Defaults") {
-                                TextField("Default Timeout (seconds)", value: $draft.settings.monitoring.defaultTimeout, format: .number)
-                                TextField("Default Interval (seconds)", value: $draft.settings.monitoring.defaultInterval, format: .number)
-                                Stepper("Retry Count: \(draft.settings.monitoring.retryCount)", value: $draft.settings.monitoring.retryCount, in: 1 ... 5)
-                                TextField("Cooldown Interval (seconds)", value: $draft.settings.monitoring.cooldownInterval, format: .number)
-                                Stepper("Retention Days: \(draft.settings.monitoring.retentionDays)", value: $draft.settings.monitoring.retentionDays, in: 1 ... 180)
-                            }
-                        }
-                    }
-
-                    GlassCard {
-                        VStack(alignment: .leading, spacing: 16) {
-                            Text("Data")
-                                .font(.title3.weight(.semibold))
-                            HStack(spacing: 12) {
-                                Button("Export Configuration") {
-                                    Task {
-                                        exportDocument = await model.exportDocument()
-                                        isExporting = true
-                                    }
-                                }
-                                Button("Import Monitors") {
-                                    isImporting = true
-                                }
-                            }
-                            Text("Exports monitors, settings, and recent state to JSON. Imports monitor definitions from a previous export or a plain monitor array.")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
+                    .onPreferenceChange(SettingsRowThreeHeightPreferenceKey.self) { rowThreeHeight = $0 }
 
                     HStack {
                         Spacer()
@@ -142,7 +51,7 @@ struct SettingsView: View {
                             Task {
                                 let didApply = await model.applySettings(draft)
                                 if didApply {
-                                    showSavedConfirmation = true
+                                    model.transientMessage = "Your settings have been saved successfully."
                                 }
                             }
                         }
@@ -150,6 +59,8 @@ struct SettingsView: View {
                     }
                 }
                 .padding(24)
+                .frame(maxWidth: maxContentWidth)
+                .frame(maxWidth: .infinity, alignment: .center)
             }
         }
         // Runs on view appearance AND whenever model.settings changes (e.g. after
@@ -158,31 +69,22 @@ struct SettingsView: View {
         .task(id: model.settings) {
             draft = await model.settingsDraft()
         }
-        .alert("Settings Saved", isPresented: $showSavedConfirmation) {
-            Button("OK", role: .cancel) {}
-        } message: {
-            Text("Your settings have been saved successfully.")
-        }
-        .fileExporter(
-            isPresented: $isExporting,
-            document: exportDocument,
-            contentType: .json,
-            defaultFilename: "PulseBoard-Configuration"
-        ) { result in
-            if case .failure(let error) = result {
-                model.transientMessage = error.localizedDescription
-            }
-        }
-        .fileImporter(isPresented: $isImporting, allowedContentTypes: [.json], allowsMultipleSelection: false) { result in
-            switch result {
-            case .success(let urls):
-                guard let url = urls.first else { return }
-                Task {
-                    await model.importMonitors(from: url)
+        .alert(
+            "PulseBoard",
+            isPresented: Binding(
+                get: { model.transientMessage != nil },
+                set: { newValue in
+                    if !newValue {
+                        model.transientMessage = nil
+                    }
                 }
-            case .failure(let error):
-                model.transientMessage = error.localizedDescription
+            )
+        ) {
+            Button("OK", role: .cancel) {
+                model.transientMessage = nil
             }
+        } message: {
+            Text(model.transientMessage ?? "")
         }
     }
 
@@ -195,11 +97,274 @@ struct SettingsView: View {
         }
     }
 
-    private func settingsSection<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Text(title)
-                .font(.title3.weight(.semibold))
+    private func generalCard(minHeight: CGFloat) -> some View {
+        settingsCard(minHeight: minHeight, measuredBy: SettingsRowOneHeightPreferenceKey.self) {
+            VStack(alignment: .leading, spacing: 16) {
+                sectionTitle("General")
+                settingsToggleRow("Pause all monitoring", isOn: $draft.settings.pauseAllMonitoring)
+                settingsToggleRow("Launch at login", isOn: $draft.settings.launchAtLogin)
+            }
+        }
+    }
+
+    private func notificationsCard(minHeight: CGFloat) -> some View {
+        settingsCard(minHeight: minHeight, measuredBy: SettingsRowOneHeightPreferenceKey.self) {
+            VStack(alignment: .leading, spacing: 16) {
+                sectionTitle("Notifications")
+                settingsValueRow("Permission", value: PulseFormatters.notificationStatus(model.notificationAuthorizationStatus))
+                settingsToggleRow("Enable local notifications", isOn: $draft.settings.localAlerts.isEnabled)
+                HStack(spacing: 10) {
+                    Button(requestPermissionButtonTitle) {
+                        Task {
+                            await model.requestNotificationPermission()
+                        }
+                    }
+                    Button("Send Test") {
+                        Task {
+                            await model.sendTestAlert(.localNotification, using: draft)
+                        }
+                    }
+                    .disabled(!model.canSendLocalNotificationTest)
+
+                    if model.notificationAuthorizationStatus == .denied {
+                        Button("Open System Settings") {
+                            model.openSystemNotificationSettings()
+                        }
+                    }
+                }
+                .buttonStyle(.bordered)
+
+                if model.notificationAuthorizationStatus == .denied {
+                    Text("Notifications are denied for PulseBoard. Enable them in System Settings → Notifications.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                routeEditor(
+                    title: "Local notification routing",
+                    mode: $draft.localAlertRouteMode,
+                    selectedMonitorIDs: $draft.localRouteMonitorIDs,
+                    tagsText: $draft.localRouteTagsText
+                )
+            }
+        }
+    }
+
+    private var requestPermissionButtonTitle: String {
+        model.notificationAuthorizationStatus == .authorized ? "Check Permission" : "Request Permission"
+    }
+
+    private func smtpCard(minHeight: CGFloat) -> some View {
+        settingsCard(minHeight: minHeight, measuredBy: SettingsRowTwoHeightPreferenceKey.self) {
+            VStack(alignment: .leading, spacing: 16) {
+                sectionTitle("SMTP Email")
+                settingsFieldRow("Host") {
+                    TextField("smtp.example.com", text: $draft.settings.smtp.host)
+                        .textFieldStyle(.roundedBorder)
+                }
+                settingsFieldRow("Port") {
+                    TextField("587", value: $draft.settings.smtp.port, format: .number)
+                        .textFieldStyle(.roundedBorder)
+                }
+                settingsFieldRow("Username") {
+                    TextField("notifications@company.com", text: $draft.settings.smtp.username)
+                        .textFieldStyle(.roundedBorder)
+                }
+                settingsFieldRow("Password") {
+                    SecureField("App password", text: $draft.smtpPassword)
+                        .textFieldStyle(.roundedBorder)
+                }
+                settingsFieldRow("From Address") {
+                    TextField("status@company.com", text: $draft.settings.smtp.fromAddress)
+                        .textFieldStyle(.roundedBorder)
+                }
+                settingsFieldRow("To Addresses") {
+                    TextField("ops@company.com, oncall@company.com", text: $draft.smtpToAddressesText)
+                        .textFieldStyle(.roundedBorder)
+                }
+                settingsToggleRow("Use TLS / SSL", isOn: $draft.settings.smtp.useTLS)
+                settingsToggleRow("Enable email alerts", isOn: $draft.settings.emailAlerts.isEnabled)
+                routeEditor(
+                    title: "Email routing",
+                    mode: $draft.emailAlertRouteMode,
+                    selectedMonitorIDs: $draft.emailRouteMonitorIDs,
+                    tagsText: $draft.emailRouteTagsText
+                )
+                Button("Send Test Email") {
+                    Task {
+                        await model.sendTestAlert(.email, using: draft)
+                    }
+                }
+                .buttonStyle(.bordered)
+            }
+        }
+    }
+
+    private func smsCard(minHeight: CGFloat) -> some View {
+        settingsCard(minHeight: minHeight, measuredBy: SettingsRowTwoHeightPreferenceKey.self) {
+            VStack(alignment: .leading, spacing: 16) {
+                sectionTitle("SMS Alerts")
+                settingsFieldRow("Provider") {
+                    Picker("Provider", selection: $draft.settings.sms.provider) {
+                        ForEach(SMSProviderKind.allCases) { provider in
+                            Text(provider.rawValue).tag(provider)
+                        }
+                    }
+                    .labelsHidden()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                settingsFieldRow("API Base URL") {
+                    TextField("https://api.twilio.com", text: $draft.settings.sms.apiBaseURL)
+                        .textFieldStyle(.roundedBorder)
+                }
+                settingsFieldRow("Account SID") {
+                    TextField("ACxxxxxxxx", text: $draft.settings.sms.accountSID)
+                        .textFieldStyle(.roundedBorder)
+                }
+                settingsFieldRow("Auth Token") {
+                    SecureField("Token", text: $draft.smsAuthToken)
+                        .textFieldStyle(.roundedBorder)
+                }
+                settingsFieldRow("Sender Number") {
+                    TextField("+1 555 123 4567", text: $draft.settings.sms.senderNumber)
+                        .textFieldStyle(.roundedBorder)
+                }
+                settingsFieldRow("Recipients") {
+                    TextField("+1 555 987 6543, +1 555 555 1212", text: $draft.smsRecipientsText)
+                        .textFieldStyle(.roundedBorder)
+                }
+                settingsToggleRow("Enable SMS alerts", isOn: $draft.settings.smsAlerts.isEnabled)
+                routeEditor(
+                    title: "SMS routing",
+                    mode: $draft.smsAlertRouteMode,
+                    selectedMonitorIDs: $draft.smsRouteMonitorIDs,
+                    tagsText: $draft.smsRouteTagsText
+                )
+                Button("Send Test SMS") {
+                    Task {
+                        await model.sendTestAlert(.sms, using: draft)
+                    }
+                }
+                .buttonStyle(.bordered)
+            }
+        }
+    }
+
+    private func monitoringDefaultsCard(minHeight: CGFloat) -> some View {
+        settingsCard(minHeight: minHeight, measuredBy: SettingsRowThreeHeightPreferenceKey.self) {
+            VStack(alignment: .leading, spacing: 16) {
+                sectionTitle("Monitoring Defaults")
+                settingsFieldRow("Timeout (seconds)") {
+                    TextField("12", value: $draft.settings.monitoring.defaultTimeout, format: .number)
+                        .textFieldStyle(.roundedBorder)
+                }
+                settingsFieldRow("Interval (seconds)") {
+                    TextField("60", value: $draft.settings.monitoring.defaultInterval, format: .number)
+                        .textFieldStyle(.roundedBorder)
+                }
+                settingsFieldRow("Retry Count") {
+                    Stepper(value: $draft.settings.monitoring.retryCount, in: 1 ... 5) {
+                        Text("\(draft.settings.monitoring.retryCount)")
+                    }
+                }
+                settingsFieldRow("Cooldown (seconds)") {
+                    TextField("120", value: $draft.settings.monitoring.cooldownInterval, format: .number)
+                        .textFieldStyle(.roundedBorder)
+                }
+                settingsFieldRow("Retention Days") {
+                    Stepper(value: $draft.settings.monitoring.retentionDays, in: 1 ... 180) {
+                        Text("\(draft.settings.monitoring.retentionDays)")
+                    }
+                }
+            }
+        }
+    }
+
+    private func dataCard(minHeight: CGFloat) -> some View {
+        settingsCard(minHeight: minHeight, measuredBy: SettingsRowThreeHeightPreferenceKey.self) {
+            VStack(alignment: .leading, spacing: 16) {
+                sectionTitle("Data")
+                HStack(spacing: 10) {
+                    Button("Export Configuration") {
+                        Task {
+                            await model.presentExportConfigurationPanel()
+                        }
+                    }
+                    Button("Import Configuration") {
+                        Task {
+                            await model.presentImportConfigurationPanel()
+                        }
+                    }
+                }
+                .buttonStyle(.bordered)
+                Text("Exports portable configuration to JSON (monitors and non-secret settings). Imports full configuration from previous exports or monitor-only JSON files.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private func settingsCard<Key: PreferenceKey, Content: View>(
+        minHeight: CGFloat,
+        measuredBy key: Key.Type,
+        @ViewBuilder content: () -> Content
+    ) -> some View where Key.Value == CGFloat {
+        GlassCard {
             content()
+                .reportHeight(using: key)
+                .frame(maxWidth: .infinity, minHeight: minHeight, alignment: .topLeading)
+        }
+    }
+
+    private func sectionTitle(_ title: String) -> some View {
+        Text(title)
+            .font(.title3.weight(.semibold))
+    }
+
+    private func settingsFieldRow<Control: View>(_ title: String, @ViewBuilder control: () -> Control) -> some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .center, spacing: 12) {
+                Text(title)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .frame(width: labelColumnWidth, alignment: .leading)
+
+                control()
+                    .frame(maxWidth: controlMaxWidth, alignment: .leading)
+
+                Spacer(minLength: 0)
+            }
+        }
+    }
+
+    private func settingsToggleRow(_ title: String, isOn: Binding<Bool>) -> some View {
+        HStack(alignment: .center, spacing: 12) {
+            Text(title)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .frame(width: labelColumnWidth, alignment: .leading)
+
+            Toggle("", isOn: isOn)
+                .labelsHidden()
+
+            Spacer(minLength: 0)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(title)
+    }
+
+    private func settingsValueRow(_ title: String, value: String) -> some View {
+        HStack(alignment: .center, spacing: 12) {
+            Text(title)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .frame(width: labelColumnWidth, alignment: .leading)
+
+            Text(value)
+                .font(.subheadline)
+                .frame(maxWidth: controlMaxWidth, alignment: .leading)
+
+            Spacer(minLength: 0)
         }
     }
 
@@ -210,15 +375,19 @@ struct SettingsView: View {
         selectedMonitorIDs: Binding<Set<UUID>>,
         tagsText: Binding<String>
     ) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 12) {
             Text(title)
                 .font(.headline)
-            Picker("Route Mode", selection: mode) {
-                ForEach(SettingsDraft.RouteMode.allCases) { routeMode in
-                    Text(routeMode.rawValue.capitalized).tag(routeMode)
+
+            settingsFieldRow("Scope") {
+                Picker("Route Mode", selection: mode) {
+                    ForEach(SettingsDraft.RouteMode.allCases) { routeMode in
+                        Text(routeMode.rawValue.capitalized).tag(routeMode)
+                    }
                 }
+                .labelsHidden()
+                .pickerStyle(.segmented)
             }
-            .pickerStyle(.segmented)
 
             switch mode.wrappedValue {
             case .all:
@@ -226,28 +395,76 @@ struct SettingsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             case .tags:
-                TextField("Production, APIs", text: tagsText)
+                settingsFieldRow("Tags") {
+                    TextField("Production, APIs", text: tagsText)
+                        .textFieldStyle(.roundedBorder)
+                }
             case .monitors:
                 VStack(alignment: .leading, spacing: 8) {
-                    ForEach(model.monitors) { monitor in
-                        Toggle(
-                            monitor.name,
-                            isOn: Binding(
-                                get: { selectedMonitorIDs.wrappedValue.contains(monitor.id) },
-                                set: { isSelected in
-                                    if isSelected {
-                                        selectedMonitorIDs.wrappedValue.insert(monitor.id)
-                                    } else {
-                                        selectedMonitorIDs.wrappedValue.remove(monitor.id)
-                                    }
-                                }
-                            )
-                        )
+                    Text("Choose monitors")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 8) {
+                            ForEach(model.monitors) { monitor in
+                                Toggle(
+                                    monitor.name,
+                                    isOn: Binding(
+                                        get: { selectedMonitorIDs.wrappedValue.contains(monitor.id) },
+                                        set: { isSelected in
+                                            if isSelected {
+                                                selectedMonitorIDs.wrappedValue.insert(monitor.id)
+                                            } else {
+                                                selectedMonitorIDs.wrappedValue.remove(monitor.id)
+                                            }
+                                        }
+                                    )
+                                )
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
+                    .frame(maxHeight: 160)
                 }
                 .padding(12)
                 .background(Color.white.opacity(0.04), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
             }
         }
+    }
+}
+
+private struct SettingsRowOneHeightPreferenceKey: PreferenceKey {
+    static let defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
+
+private struct SettingsRowTwoHeightPreferenceKey: PreferenceKey {
+    static let defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
+
+private struct SettingsRowThreeHeightPreferenceKey: PreferenceKey {
+    static let defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
+
+private extension View {
+    func reportHeight<Key: PreferenceKey>(using key: Key.Type) -> some View where Key.Value == CGFloat {
+        background(
+            GeometryReader { proxy in
+                Color.clear
+                    .preference(key: key, value: proxy.size.height)
+            }
+        )
     }
 }
