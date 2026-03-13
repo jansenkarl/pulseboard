@@ -139,6 +139,8 @@ struct RootView: View {
             IncidentsView()
         case .settings:
             SettingsView()
+        case .help:
+            HelpView()
         }
     }
 }

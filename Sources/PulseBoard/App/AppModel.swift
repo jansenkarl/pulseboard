@@ -12,6 +12,7 @@ enum SidebarSection: String, CaseIterable, Identifiable {
     case monitors
     case incidents
     case settings
+    case help
 
     var id: String { rawValue }
 
@@ -21,6 +22,7 @@ enum SidebarSection: String, CaseIterable, Identifiable {
         case .monitors:  return "Monitors"
         case .incidents: return "Incidents"
         case .settings:  return "Settings"
+        case .help:      return "Help"
         }
     }
 
@@ -30,6 +32,7 @@ enum SidebarSection: String, CaseIterable, Identifiable {
         case .monitors:  return "list.bullet.rectangle.portrait.fill"
         case .incidents: return "timeline.selection"
         case .settings:  return "gearshape.fill"
+        case .help:      return "questionmark.circle.fill"
         }
     }
 }
