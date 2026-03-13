@@ -125,6 +125,32 @@ struct TagChip: View {
     }
 }
 
+struct MonitoringPausedBanner: View {
+    let title: String
+    let message: String
+    let actionTitle: String
+    let action: () -> Void
+
+    var body: some View {
+        GlassCard {
+            HStack(alignment: .center, spacing: 14) {
+                Label(title, systemImage: "pause.circle.fill")
+                    .font(.headline)
+                    .foregroundStyle(.orange)
+
+                Text(message)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+
+                Spacer(minLength: 8)
+
+                Button(actionTitle, action: action)
+                    .buttonStyle(.borderedProminent)
+            }
+        }
+    }
+}
+
 struct EmptyStateView: View {
     let title: String
     let message: String

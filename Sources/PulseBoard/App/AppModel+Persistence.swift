@@ -41,7 +41,9 @@ extension AppModel {
             print("[PulseBoard] bootstrap: re-persist after load — success=\(ok)")
         }
         await synchronizeEngine()
-        await runAllNow()
+        if !settings.pauseAllMonitoring {
+            _ = await engine.runAllNow(monitors: monitors)
+        }
     }
 
     // MARK: - Engine synchronization

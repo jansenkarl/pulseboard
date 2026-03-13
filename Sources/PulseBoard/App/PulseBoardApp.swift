@@ -70,7 +70,14 @@ struct PulseBoardApp: App {
                 .frame(width: 880, height: 760)
         }
 
-        MenuBarExtra("PulseBoard", systemImage: model.overallStatus.symbolName) {
+        MenuBarExtra(
+            "PulseBoard",
+            systemImage: model.overallStatus.symbolName,
+            isInserted: Binding(
+                get: { model.settings.showMenuBarIcon },
+                set: { _ in }
+            )
+        ) {
             MenuBarExtraView()
                 .environmentObject(model)
         }

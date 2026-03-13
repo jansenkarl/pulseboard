@@ -56,6 +56,9 @@ final class AppModel: ObservableObject {
     @Published var monitorDraft = MonitorDraft()
     @Published var notificationAuthorizationStatus: UNAuthorizationStatus = .notDetermined
     @Published var transientMessage: String?
+    @Published var isRunningAllChecksNow = false
+    @Published var lastManualRunAt: Date?
+    @Published var lastManualRunCheckCount: Int = 0
 
     // MARK: Services
     // Internal (not private) so AppModel extension files in other sources can reach them.
@@ -105,7 +108,13 @@ final class AppModel: ObservableObject {
     // MARK: Engine & notification actions
 
     func runAllNow() async {
-        await engine.runAllNow(monitors: monitors, pauseAll: settings.pauseAllMonitoring)
+        guard !isRunningAllChecksNow else { return }
+        isRunningAllChecksNow = true
+        defer { isRunningAllChecksNow = false }
+
+        let ranChecks = await engine.runAllNow(monitors: monitors)
+        lastManualRunAt = Date()
+        lastManualRunCheckCount = ranChecks
     }
 
     func runMonitorNow(_ monitor: Monitor) async {

@@ -102,6 +102,7 @@ struct SettingsView: View {
             VStack(alignment: .leading, spacing: 16) {
                 sectionTitle("General")
                 settingsToggleRow("Pause all monitoring", isOn: $draft.settings.pauseAllMonitoring)
+                settingsToggleRow("Show menu bar icon", isOn: $draft.settings.showMenuBarIcon)
                 settingsToggleRow("Launch at login", isOn: $draft.settings.launchAtLogin)
             }
         }

@@ -4,80 +4,99 @@ struct MonitorWorkspaceView: View {
     @EnvironmentObject private var model: AppModel
 
     var body: some View {
-        HSplitView {
-            GlassCard {
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("Monitors")
-                        .font(.title3.weight(.semibold))
+        VStack(alignment: .leading, spacing: 16) {
+            if model.settings.pauseAllMonitoring {
+                MonitoringPausedBanner(
+                    title: "Monitoring Paused",
+                    message: "Automatic checks are suspended. Monitor health shown below is the last known state.",
+                    actionTitle: "Resume Monitoring"
+                ) {
+                    Task {
+                        await model.setPauseAllMonitoring(false)
+                    }
+                }
+            }
 
-                    TextField("Search name, host, or tag", text: $model.searchText)
-                        .textFieldStyle(.roundedBorder)
+            HSplitView {
+                GlassCard {
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("Monitors")
+                            .font(.title3.weight(.semibold))
 
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            ForEach(model.allTags, id: \.self) { tag in
-                                Button {
-                                    model.selectedTag = tag
-                                } label: {
-                                    TagChip(title: tag, isSelected: model.selectedTag == tag)
+                        TextField("Search name, host, or tag", text: $model.searchText)
+                            .textFieldStyle(.roundedBorder)
+
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(model.allTags, id: \.self) { tag in
+                                    Button {
+                                        model.selectedTag = tag
+                                    } label: {
+                                        TagChip(title: tag, isSelected: model.selectedTag == tag)
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    Table(model.filteredMonitors, selection: $model.selectedMonitorID) {
-                        TableColumn("Monitor") { monitor in
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(monitor.name)
-                                    .font(.headline)
-                                Text(monitor.displayTarget)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                                    .lineLimit(1)
+                        Table(model.filteredMonitors, selection: $model.selectedMonitorID) {
+                            TableColumn("Monitor") { monitor in
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(monitor.name)
+                                        .font(.headline)
+                                    Text(monitor.displayTarget)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                        .lineLimit(1)
+                                }
                             }
-                        }
-                        .width(min: 210, ideal: 250)
+                            .width(min: 210, ideal: 250)
 
-                        TableColumn("State") { monitor in
-                            StatusBadge(status: monitor.state.currentStatus)
-                        }
-                        .width(110)
+                            TableColumn("State") { monitor in
+                                HStack(spacing: 8) {
+                                    StatusBadge(status: monitor.state.currentStatus)
+                                    if model.settings.pauseAllMonitoring {
+                                        TagChip(title: "Paused", isSelected: true)
+                                    }
+                                }
+                            }
+                            .width(min: 110, ideal: 185)
 
-                        TableColumn("Latency") { monitor in
-                            Text(PulseFormatters.milliseconds(monitor.state.lastResponseTimeMs))
-                                .foregroundStyle(.secondary)
-                        }
-                        .width(80)
+                            TableColumn("Latency") { monitor in
+                                Text(PulseFormatters.milliseconds(monitor.state.lastResponseTimeMs))
+                                    .foregroundStyle(.secondary)
+                            }
+                            .width(80)
 
-                        TableColumn("Uptime") { monitor in
-                            Text(PulseFormatters.percentage(model.uptime24h(for: monitor.id)))
-                                .foregroundStyle(.secondary)
-                        }
-                        .width(80)
+                            TableColumn("Uptime") { monitor in
+                                Text(PulseFormatters.percentage(model.uptime24h(for: monitor.id)))
+                                    .foregroundStyle(.secondary)
+                            }
+                            .width(80)
 
-                        TableColumn("SSL") { monitor in
-                            Text(PulseFormatters.daysUntil(monitor.state.lastSSLExpiryDate))
-                                .foregroundStyle(.secondary)
+                            TableColumn("SSL") { monitor in
+                                Text(PulseFormatters.daysUntil(monitor.state.lastSSLExpiryDate))
+                                    .foregroundStyle(.secondary)
+                            }
+                            .width(70)
                         }
-                        .width(70)
+                        .tableStyle(.inset(alternatesRowBackgrounds: false))
                     }
-                    .tableStyle(.inset(alternatesRowBackgrounds: false))
                 }
-            }
-            .frame(minWidth: 520)
+                .frame(minWidth: 520)
 
-            if let selectedMonitor = model.monitor(for: model.selectedMonitorID) {
-                MonitorDetailView(monitor: selectedMonitor)
+                if let selectedMonitor = model.monitor(for: model.selectedMonitorID) {
+                    MonitorDetailView(monitor: selectedMonitor)
+                        .frame(minWidth: 500)
+                } else {
+                    GlassCard {
+                        EmptyStateView(
+                            title: "No Monitor Selected",
+                            message: "Choose a monitor from the list or create a new one to see detailed status, uptime, and recent checks.",
+                            systemImage: "display.2"
+                        )
+                    }
                     .frame(minWidth: 500)
-            } else {
-                GlassCard {
-                    EmptyStateView(
-                        title: "No Monitor Selected",
-                        message: "Choose a monitor from the list or create a new one to see detailed status, uptime, and recent checks.",
-                        systemImage: "display.2"
-                    )
                 }
-                .frame(minWidth: 500)
             }
         }
     }
@@ -182,6 +201,9 @@ struct MonitorDetailView: View {
 
                         HStack(spacing: 8) {
                             StatusBadge(status: monitor.state.currentStatus)
+                            if model.settings.pauseAllMonitoring {
+                                TagChip(title: "Globally Paused", isSelected: true)
+                            }
                             if !monitor.isEnabled {
                                 TagChip(title: "Paused", isSelected: true)
                             }

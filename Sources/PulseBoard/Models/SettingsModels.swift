@@ -227,6 +227,7 @@ struct MonitoringDefaults: Codable, Hashable, Sendable {
 
 struct AppSettings: Codable, Hashable, Sendable {
     var pauseAllMonitoring: Bool = false
+    var showMenuBarIcon: Bool = true
     var launchAtLogin: Bool = false
     var monitoring: MonitoringDefaults = .init()
     var localAlerts: AlertChannelSettings = .init(isEnabled: true, route: .init())
@@ -237,6 +238,7 @@ struct AppSettings: Codable, Hashable, Sendable {
 
     private enum CodingKeys: String, CodingKey {
         case pauseAllMonitoring
+        case showMenuBarIcon
         case launchAtLogin
         case monitoring
         case localAlerts
@@ -250,6 +252,7 @@ struct AppSettings: Codable, Hashable, Sendable {
 
     init(
         pauseAllMonitoring: Bool = false,
+        showMenuBarIcon: Bool = true,
         launchAtLogin: Bool = false,
         monitoring: MonitoringDefaults = .init(),
         localAlerts: AlertChannelSettings = .init(isEnabled: true, route: .init()),
@@ -259,6 +262,7 @@ struct AppSettings: Codable, Hashable, Sendable {
         sms: SMSConfiguration = .init()
     ) {
         self.pauseAllMonitoring = pauseAllMonitoring
+        self.showMenuBarIcon = showMenuBarIcon
         self.launchAtLogin = launchAtLogin
         self.monitoring = monitoring
         self.localAlerts = localAlerts
@@ -271,6 +275,7 @@ struct AppSettings: Codable, Hashable, Sendable {
     init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         pauseAllMonitoring = try container.decodeIfPresent(Bool.self, forKey: .pauseAllMonitoring) ?? false
+        showMenuBarIcon = try container.decodeIfPresent(Bool.self, forKey: .showMenuBarIcon) ?? true
         launchAtLogin = try container.decodeIfPresent(Bool.self, forKey: .launchAtLogin) ?? false
         monitoring = try container.decodeIfPresent(MonitoringDefaults.self, forKey: .monitoring) ?? .init()
         localAlerts = try container.decodeIfPresent(AlertChannelSettings.self, forKey: .localAlerts) ?? .init(isEnabled: true, route: .init())

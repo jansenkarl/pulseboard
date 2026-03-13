@@ -52,6 +52,18 @@ struct DashboardView: View {
             VStack(alignment: .leading, spacing: 22) {
                 header
 
+                if model.settings.pauseAllMonitoring {
+                    MonitoringPausedBanner(
+                        title: "Monitoring Paused",
+                        message: "Automatic checks are suspended. You can still run checks manually.",
+                        actionTitle: "Resume Monitoring"
+                    ) {
+                        Task {
+                            await model.setPauseAllMonitoring(false)
+                        }
+                    }
+                }
+
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 220), spacing: 18)], spacing: 18) {
                     MetricCard(
                         title: "Healthy",
@@ -234,6 +246,9 @@ struct DashboardView: View {
             Spacer()
             VStack(alignment: .trailing, spacing: 10) {
                 StatusBadge(status: model.overallStatus)
+                if model.settings.pauseAllMonitoring {
+                    TagChip(title: "Monitoring Paused", isSelected: true)
+                }
                 Text("Average latency \(PulseFormatters.milliseconds(model.averageResponseTime))")
                     .foregroundStyle(.secondary)
             }

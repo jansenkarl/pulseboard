@@ -94,8 +94,13 @@ struct RootView: View {
                     await model.runAllNow()
                 }
             } label: {
-                Label("Refresh", systemImage: "arrow.clockwise")
+                if model.isRunningAllChecksNow {
+                    Label("Running…", systemImage: "hourglass")
+                } else {
+                    Label("Run All Now", systemImage: "arrow.clockwise")
+                }
             }
+            .disabled(model.isRunningAllChecksNow)
             .help("Refresh all monitors now")
 
             Button {

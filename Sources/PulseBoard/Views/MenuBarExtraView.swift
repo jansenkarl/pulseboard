@@ -34,8 +34,7 @@ struct MenuBarExtraView: View {
             Divider()
 
             Button("Open Dashboard") {
-                openWindow(id: "main")
-                NSApp.activate(ignoringOtherApps: true)
+                focusMainWindow(at: .dashboard)
             }
 
             Button(model.settings.pauseAllMonitoring ? "Resume Monitoring" : "Pause Monitoring") {
@@ -44,17 +43,59 @@ struct MenuBarExtraView: View {
                 }
             }
 
-            Button("Run All Checks Now") {
+            Button {
                 Task {
                     await model.runAllNow()
                 }
+            } label: {
+                if model.isRunningAllChecksNow {
+                    HStack(spacing: 8) {
+                        ProgressView()
+                            .controlSize(.small)
+                        Text("Running Checks…")
+                    }
+                } else {
+                    Text("Run All Checks Now")
+                }
+            }
+            .disabled(model.isRunningAllChecksNow)
+
+            if let lastManualRunAt = model.lastManualRunAt {
+                Text("Last manual run \(PulseFormatters.relativeTime(lastManualRunAt)) • \(model.lastManualRunCheckCount) checks")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
 
-            SettingsLink {
+            Button {
+                focusMainWindow(at: .settings)
+            } label: {
                 Label("Settings", systemImage: "gearshape")
             }
         }
         .padding(16)
         .frame(width: 320)
+    }
+
+    private func focusMainWindow(at section: SidebarSection) {
+        model.selectedSection = section
+        NSApp.activate(ignoringOtherApps: true)
+
+        if let existingWindow = NSApp.windows.first(where: isPrimaryWindow) {
+            if existingWindow.isMiniaturized {
+                existingWindow.deminiaturize(nil)
+            }
+            existingWindow.makeKeyAndOrderFront(nil)
+            return
+        }
+
+        openWindow(id: "main")
+    }
+
+    private func isPrimaryWindow(_ window: NSWindow) -> Bool {
+        guard window.canBecomeMain else { return false }
+        guard window.styleMask.contains(.titled) else { return false }
+        guard window.toolbar != nil else { return false }
+        let className = NSStringFromClass(type(of: window))
+        return !className.contains("NSStatusBarWindow")
     }
 }

@@ -33,21 +33,29 @@ actor MonitoringEngine {
     }
 
     func runNow(_ monitor: Monitor) {
-        guard !inFlight.contains(monitor.id) else { return }
-        inFlight.insert(monitor.id)
-
-        Task(priority: .userInitiated) { [checker, onResult] in
-            let check = await checker.performCheck(for: monitor)
-            await onResult(monitor.id, check)
-            self.finishRun(for: monitor.id)
+        Task(priority: .userInitiated) {
+            _ = await runNowSynchronously(monitor)
         }
     }
 
-    func runAllNow(monitors: [Monitor], pauseAll: Bool) {
-        guard !pauseAll else { return }
+    func runAllNow(monitors: [Monitor]) async -> Int {
+        var checksStarted = 0
         for monitor in monitors where monitor.isEnabled {
-            runNow(monitor)
+            let didRun = await runNowSynchronously(monitor)
+            if didRun {
+                checksStarted += 1
+            }
         }
+        return checksStarted
+    }
+
+    private func runNowSynchronously(_ monitor: Monitor) async -> Bool {
+        guard !inFlight.contains(monitor.id) else { return false }
+        inFlight.insert(monitor.id)
+        let check = await checker.performCheck(for: monitor)
+        await onResult(monitor.id, check)
+        finishRun(for: monitor.id)
+        return true
     }
 
     private func finishRun(for monitorID: UUID) {
