@@ -3,6 +3,7 @@ import UserNotifications
 
 enum LocalNotificationError: LocalizedError {
     case notAuthorized(status: UNAuthorizationStatus)
+    case notificationsUnavailable
     case authorizationRequestFailed(String)
 
     var errorDescription: String? {
@@ -16,6 +17,8 @@ enum LocalNotificationError: LocalizedError {
             default:
                 return "Notifications are not currently authorized."
             }
+        case .notificationsUnavailable:
+            return "Notifications are unavailable for this app build. Run PulseBoard from an Xcode build with code signing enabled (Signing & Capabilities), then request permission again."
         case .authorizationRequestFailed(let message):
             return "Unable to request notification permission. \(message)"
         }
@@ -24,6 +27,15 @@ enum LocalNotificationError: LocalizedError {
 
 actor LocalNotificationService {
     private let center = UNUserNotificationCenter.current()
+
+    private nonisolated static func mapPermissionError(_ error: Error) -> LocalNotificationError {
+        let nsError = error as NSError
+        if nsError.domain == UNErrorDomain,
+           nsError.code == UNError.Code.notificationsNotAllowed.rawValue {
+            return .notificationsUnavailable
+        }
+        return .authorizationRequestFailed(error.localizedDescription)
+    }
 
     func authorizationStatus() async -> UNAuthorizationStatus {
         await withCheckedContinuation { continuation in
@@ -37,7 +49,7 @@ actor LocalNotificationService {
         _ = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Bool, Error>) in
             center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
                 if let error {
-                    continuation.resume(throwing: LocalNotificationError.authorizationRequestFailed(error.localizedDescription))
+                    continuation.resume(throwing: Self.mapPermissionError(error))
                     return
                 }
                 continuation.resume(returning: granted)
@@ -68,6 +80,12 @@ actor LocalNotificationService {
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             center.add(request) { error in
                 if let error {
+                    let nsError = error as NSError
+                    if nsError.domain == UNErrorDomain,
+                       nsError.code == UNError.Code.notificationsNotAllowed.rawValue {
+                        continuation.resume(throwing: LocalNotificationError.notificationsUnavailable)
+                        return
+                    }
                     continuation.resume(throwing: error)
                 } else {
                     continuation.resume(returning: ())
