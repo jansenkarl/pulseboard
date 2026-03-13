@@ -3,6 +3,14 @@ import SwiftUI
 struct DashboardView: View {
     @EnvironmentObject private var model: AppModel
 
+    private var summaryGridColumns: [GridItem] {
+        Array(repeating: GridItem(.flexible(minimum: 0), spacing: 18, alignment: .top), count: 4)
+    }
+
+    private var monitorGroupGridColumns: [GridItem] {
+        Array(repeating: GridItem(.flexible(minimum: 0), spacing: 16, alignment: .top), count: 4)
+    }
+
     private var liveResponseSamples: [(date: Date, responseTimeMs: Double)] {
         let checkSamples = model.checksByMonitor.values
             .flatMap { $0 }
@@ -64,7 +72,7 @@ struct DashboardView: View {
                     }
                 }
 
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 220), spacing: 18)], spacing: 18) {
+                LazyVGrid(columns: summaryGridColumns, spacing: 18) {
                     MetricCard(
                         title: "Healthy",
                         value: "\(model.summaryCounts.up)",
@@ -94,6 +102,7 @@ struct DashboardView: View {
                         systemImage: "chart.line.uptrend.xyaxis"
                     )
                 }
+                .frame(maxWidth: .infinity)
 
                 VStack(alignment: .leading, spacing: 18) {
                     GlassCard {
@@ -152,7 +161,7 @@ struct DashboardView: View {
                         Text("Monitor Groups")
                             .font(.title3.weight(.semibold))
 
-                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 220), spacing: 16)], spacing: 16) {
+                        LazyVGrid(columns: monitorGroupGridColumns, spacing: 16) {
                             ForEach(groupedMonitors, id: \.0) { group, monitors in
                                 VStack(alignment: .leading, spacing: 10) {
                                     HStack {
@@ -179,10 +188,12 @@ struct DashboardView: View {
                                         .buttonStyle(.plain)
                                     }
                                 }
+                                .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(16)
                                 .background(Color.white.opacity(0.04), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
                             }
                         }
+                        .frame(maxWidth: .infinity)
                     }
                 }
 
@@ -232,6 +243,7 @@ struct DashboardView: View {
                     }
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
