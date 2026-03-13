@@ -182,6 +182,57 @@ struct SparklineView: View {
     }
 }
 
+struct LatencyScaleYAxis: View {
+    let values: [Double]
+
+    private var minValue: Double? {
+        values.min()
+    }
+
+    private var maxValue: Double? {
+        values.max()
+    }
+
+    private var midValue: Double? {
+        guard let minValue, let maxValue else { return nil }
+        return (minValue + maxValue) / 2
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text(PulseFormatters.chartAxisMilliseconds(maxValue))
+                .font(.caption2.monospacedDigit())
+                .foregroundStyle(.secondary)
+            Spacer(minLength: 2)
+            Text(PulseFormatters.chartAxisMilliseconds(midValue))
+                .font(.caption2.monospacedDigit())
+                .foregroundStyle(.secondary)
+            Spacer(minLength: 2)
+            Text(PulseFormatters.chartAxisMilliseconds(minValue))
+                .font(.caption2.monospacedDigit())
+                .foregroundStyle(.secondary)
+        }
+        .frame(width: 72, height: 38, alignment: .leading)
+    }
+}
+
+struct ChartTimeRangeLegend: View {
+    let startDate: Date?
+    let endDate: Date?
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Text(PulseFormatters.chartAxisTime(startDate))
+                .font(.caption2.monospacedDigit())
+                .foregroundStyle(.secondary)
+            Spacer()
+            Text(PulseFormatters.chartAxisTime(endDate))
+                .font(.caption2.monospacedDigit())
+                .foregroundStyle(.secondary)
+        }
+    }
+}
+
 struct AvailabilityStrip: View {
     let checks: [MonitorCheck]
 

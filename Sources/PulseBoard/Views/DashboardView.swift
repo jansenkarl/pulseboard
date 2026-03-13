@@ -3,6 +3,42 @@ import SwiftUI
 struct DashboardView: View {
     @EnvironmentObject private var model: AppModel
 
+    private var liveResponseSamples: [(date: Date, responseTimeMs: Double)] {
+        let checkSamples = model.checksByMonitor.values
+            .flatMap { $0 }
+            .sorted { $0.checkedAt > $1.checkedAt }
+            .prefix(30)
+            .compactMap { check -> (Date, Double)? in
+                guard let response = check.responseTimeMs else { return nil }
+                return (check.checkedAt, response)
+            }
+            .reversed()
+
+        if !checkSamples.isEmpty {
+            return Array(checkSamples)
+        }
+
+        return model.monitors
+            .compactMap { monitor -> (Date, Double)? in
+                guard let checkedAt = monitor.state.lastCheckedAt,
+                      let response = monitor.state.lastResponseTimeMs else { return nil }
+                return (checkedAt, response)
+            }
+            .sorted { $0.0 < $1.0 }
+    }
+
+    private var liveResponseValues: [Double] {
+        liveResponseSamples.map(\.responseTimeMs)
+    }
+
+    private var liveResponseStartDate: Date? {
+        liveResponseSamples.first?.date
+    }
+
+    private var liveResponseEndDate: Date? {
+        liveResponseSamples.last?.date
+    }
+
     private var groupedMonitors: [(String, [Monitor])] {
         Dictionary(grouping: model.monitors) { monitor in
             monitor.normalizedTags.first ?? "Untagged"
@@ -79,9 +115,13 @@ struct DashboardView: View {
                                 Text(PulseFormatters.milliseconds(model.averageResponseTime))
                                     .foregroundStyle(.secondary)
                             }
-                            SparklineView(
-                                values: model.monitors.compactMap(\.state.lastResponseTimeMs),
-                                tint: model.overallStatus.tint
+                            HStack(alignment: .top, spacing: 10) {
+                                LatencyScaleYAxis(values: liveResponseValues)
+                                SparklineView(values: liveResponseValues, tint: model.overallStatus.tint)
+                            }
+                            ChartTimeRangeLegend(
+                                startDate: liveResponseStartDate,
+                                endDate: liveResponseEndDate
                             )
                             Divider()
                             VStack(alignment: .leading, spacing: 10) {

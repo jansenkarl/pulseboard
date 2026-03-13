@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+import UserNotifications
 
 // MARK: - Termination delegate
 
@@ -9,7 +10,7 @@ import SwiftUI
 /// grants between SIGTERM and process death; this bypass writes directly on
 /// the main thread and returns before the OS proceeds with termination.
 @MainActor
-final class AppTerminationDelegate: NSObject, NSApplicationDelegate {
+final class AppTerminationDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
     weak var model: AppModel?
 
     /// Called by AppKit on the main thread just before the process exits.
@@ -19,6 +20,24 @@ final class AppTerminationDelegate: NSObject, NSApplicationDelegate {
             model?.terminationFlush()
             print("[PulseBoard] applicationWillTerminate: flush complete")
         }
+    }
+
+    /// Ensures local notifications are still visibly presented when PulseBoard
+    /// is frontmost (e.g. Settings "Send Test" while app is active).
+    nonisolated func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        completionHandler([.banner, .list, .sound])
+    }
+
+    nonisolated func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        completionHandler()
     }
 }
 
@@ -38,6 +57,10 @@ struct PulseBoardApp: App {
                     // Wire the termination delegate to the shared model so it
                     // can call terminationFlush() when the app is about to die.
                     appDelegate.model = model
+
+                    // Route foreground notifications through the delegate so
+                    // local test alerts are visibly presented while app is open.
+                    UNUserNotificationCenter.current().delegate = appDelegate
                 }
         }
 

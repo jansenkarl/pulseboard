@@ -8,6 +8,16 @@ enum PulseFormatters {
         return date.formatted(date: .abbreviated, time: .shortened)
     }
 
+    static func chartAxisTime(_ date: Date?) -> String {
+        guard let date else { return "—" }
+        return date.formatted(date: .omitted, time: .shortened)
+    }
+
+    static func chartAxisMilliseconds(_ value: Double?) -> String {
+        guard let value else { return "—" }
+        return "\(Int(value.rounded()))ms"
+    }
+
     static func relativeTime(_ date: Date?) -> String {
         guard let date else { return "Never" }
         return date.formatted(.relative(presentation: .named))

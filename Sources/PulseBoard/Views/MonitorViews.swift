@@ -92,8 +92,20 @@ struct MonitorDetailView: View {
         model.checks(for: monitor.id)
     }
 
+    private var recentChecks: [MonitorCheck] {
+        Array(history.recent(limit: 24).reversed())
+    }
+
     private var latencyValues: [Double] {
-        history.recent(limit: 24).compactMap(\.responseTimeMs).reversed()
+        recentChecks.compactMap(\.responseTimeMs)
+    }
+
+    private var recentPerformanceStartDate: Date? {
+        recentChecks.first?.checkedAt
+    }
+
+    private var recentPerformanceEndDate: Date? {
+        recentChecks.last?.checkedAt
     }
 
     private var metricGridColumns: [GridItem] {
@@ -220,7 +232,14 @@ struct MonitorDetailView: View {
                                 Text("Last checked \(PulseFormatters.relativeTime(monitor.state.lastCheckedAt))")
                                     .foregroundStyle(.secondary)
                             }
-                            SparklineView(values: latencyValues, tint: monitor.state.currentStatus.tint)
+                            HStack(alignment: .top, spacing: 10) {
+                                LatencyScaleYAxis(values: latencyValues)
+                                SparklineView(values: latencyValues, tint: monitor.state.currentStatus.tint)
+                            }
+                            ChartTimeRangeLegend(
+                                startDate: recentPerformanceStartDate,
+                                endDate: recentPerformanceEndDate
+                            )
                             AvailabilityStrip(checks: history)
                             if let message = monitor.state.lastMessage {
                                 Divider()
